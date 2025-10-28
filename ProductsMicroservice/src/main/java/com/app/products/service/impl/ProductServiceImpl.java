@@ -1,8 +1,9 @@
 package com.app.products.service.impl;
 
-import com.app.products.event.ProductCreatedEvent;
+import com.app.common.kafka.ProductCreatedEvent;
 import com.app.products.model.CreateProductModel;
 import com.app.products.service.ProductService;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -34,8 +35,14 @@ public class ProductServiceImpl implements ProductService {
 
         logger.info("Before publishing a ProductCreatedEvent");
 
+        ProducerRecord<String, ProductCreatedEvent> record = new ProducerRecord<>(
+                "product-created-events-topic",
+                productId,
+                productCreatedEvent);
+        record.headers().add("messageId", UUID.randomUUID().toString().getBytes());
+
         SendResult<String, ProductCreatedEvent> result =
-                kafkaTemplate.send("product-created-events-topic",productId, productCreatedEvent).get();
+                kafkaTemplate.send(record).get();
 
         logger.info("Partition: " + result.getRecordMetadata().partition());
         logger.info("Topic: " + result.getRecordMetadata().topic());
