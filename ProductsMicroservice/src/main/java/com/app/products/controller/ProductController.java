@@ -32,7 +32,6 @@ public class ProductController {
         try {
             productId = productService.createProduct(product);
         } catch (Exception e) {
-            //e.printStackTrace();
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorMessage(new Date(), e.getMessage(),"/products"));
